@@ -1,5 +1,44 @@
 from math import floor
-# RGB to HSL
+# This will come in handy
+from dataclasses import dataclass
+@dataclass
+class HSL:
+    h: float
+    s: float
+    l: float
+
+    def __post_init__(self):
+        # Correct H value (since we may go beyond 360)
+        self.h = self.h%360
+        if not (0<=self.s<=1):
+            raise ValueError(f"Expected 0<S<1, got {self.s}")
+        if not (0<=self.l<=1):
+            raise ValueError(f"Expected 0<L<1, got {self.l}")
+    
+    # Class Functions
+    def to_RGB(self):
+        # Why is this so complicated though
+        C= (1-abs(2*self.l-1))*self.s
+        Hp = self.h/60
+        X = C * (1-abs(Hp%2-1))
+        m = self.l-C/2
+        match floor(Hp):
+            case 0:
+                r,g,b = (C,X,0)
+            case 1:
+                r,g,b = (X,C,0)
+            case 2:
+                r,g,b = (0,C,X)
+            case 3:
+                r,g,b = (0,X,C)
+            case 4:
+                r,g,b = (X,0,C)
+            case 5 | 6:
+                r,g,b = (C,0,X)
+        return (r+m, g+m, b+m) 
+
+
+#RGB to HSL
 def RGB_to_HSL(rgb:tuple):
     R, G, B = rgb
     # Check
@@ -24,34 +63,6 @@ def RGB_to_HSL(rgb:tuple):
     else:
         S = delta/(1-abs(2*L-1))
     return (H,S,L)
-# HSL to RGB
-def HSL_to_RGB(hsl:tuple):
-    H, S, L = hsl
-    # Check
-    if H<0 or H>360:
-        print("Invalid hue. Expected 0<H<360, got: ", H)
-        return
-    if S<0 or S>100:
-        print("Invalid saturation. Expected 0<S<100, got: ", S)
-        return
-    if L<0 or L>100:
-        print("Invalid lightness. Expected 0<L<100, got: ", L)
-        return
-    if S>1:
-        print("Converting S from percentage")
-        S = S/100
-    if L>1:
-        print("Converting L from percentage")
-        L = L/100
-    # Why is this so complicated though
-    C= (1-abs(2*L-1))*S
-    Hp = H/60
-    X = C * (1-abs(Hp%2-1))
-    m = L-C/2
-    match floor(Hp):
-        case 0:
-            r,g,b = (C,X,0)
-        case 1:
             r,g,b = (X,C,0)
         case 2:
             r,g,b = (0,C,X)
