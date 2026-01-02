@@ -1,3 +1,4 @@
+from random import random
 from math import floor
 # This will come in handy
 from dataclasses import dataclass
@@ -16,7 +17,9 @@ class HSL:
             raise ValueError(f"Expected 0<L<1, got {self.l}")
     
     # Class Functions
-    def to_RGB(self):
+    def rotate(self,degrees) -> "HSL":
+        return HSL((self.h + degrees),self.s,self.l)
+    def to_RGB(self) -> "RGB Tuple":
         # Why is this so complicated though
         C= (1-abs(2*self.l-1))*self.s
         Hp = self.h/60
@@ -35,9 +38,41 @@ class HSL:
                 r,g,b = (X,0,C)
             case 5 | 6:
                 r,g,b = (C,0,X)
-        return (r+m, g+m, b+m) 
-
-
+        return (round((r+m)*255), round((g+m)*255), round((b+m)*255)) 
+    # Preview color
+    def preview(self):
+        r,g,b = self.to_RGB()
+        print(f"\033[48;2;{r};{g};{b}m  RGB: {r},{g},{b} \033[0m")
+    # Color options
+    def complementary(self) -> "HSL":
+        return self.rotate(180)
+    def split_complementary(self):
+        color_1 = self.rotate(180-30)
+        color_2 = self.rotate(180_30)
+        return color_1,color_2
+    def analogous(self):
+        color_1 = self.rotate(-30)
+        color_2 = self.rotate(30)
+        return color_1, color_2
+    def triadic(self):
+        color_1 = self.rotate(-120)
+        color_2 = self.rotate(120)
+        return color_1, color_2
+    def square(self):
+        color_1 = self.rotate(-90)
+        color_2 = self.rotate(90)
+        color_3 = self.rotate(180)
+        return color_1, color_2, color_3
+    def tetradic(self):
+        # Could go both directions
+        pm = [-1,1][random()<=0.5]
+        color_1 = self.rotate(pm*60)
+        color_2 = self.rotate(180)
+        color_3 = self.rotate(180+pm*60)
+        return color_1, color_2, color_3
+    # Save this one
+    # def monochromatic(self):
+    
 #RGB to HSL
 def RGB_to_HSL(rgb:tuple):
     R, G, B = rgb
@@ -63,16 +98,6 @@ def RGB_to_HSL(rgb:tuple):
     else:
         S = delta/(1-abs(2*L-1))
     return (H,S,L)
-            r,g,b = (X,C,0)
-        case 2:
-            r,g,b = (0,C,X)
-        case 3:
-            r,g,b = (0,X,C)
-        case 4:
-            r,g,b = (X,0,C)
-        case 5 | 6:
-            r,g,b = (C,0,X)
-    return (r+m, g+m, b+m) 
 
 # Nudge colors
 
