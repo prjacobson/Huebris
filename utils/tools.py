@@ -72,7 +72,27 @@ class HSL:
         return color_1, color_2, color_3
     # Save this one
     # def monochromatic(self):
-    
+
+#Palettes
+palette_schemes = {
+    "complementary" : lambda c: c.complementary(),
+    "split_complementary" : lambda c: c.split_complementary(),
+    "analogous" : lambda c: c.analogous(),
+    "triadic" : lambda c: c.triadic(),
+    "square" : lambda c: c.square(),
+    "tetradic" : lambda c: c.tetradic()
+}
+def get_palette(base: HSL, scheme: str):
+    palette = [base]
+    try: 
+        colors = palette_schemes[scheme](base)
+        if type(colors) == HSL:
+            palette.append(colors)
+        else:
+            palette.extend(colors)
+        return palette
+    except KeyError:
+         raise ValueError(f"Unknown palette scheme: {scheme}")
 #RGB to HSL
 def RGB_to_HSL(rgb:tuple):
     R, G, B = rgb
