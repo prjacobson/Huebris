@@ -21,6 +21,8 @@ class HSL:
         return HSL((self.h + degrees),self.s,self.l)
     def lighten(self,amount) -> "HSL":
         return HSL(self.h,self.s,self.l+amount)
+    def saturate(self,amount) -> "HSL":
+        return HSL(self.h,self.s+amount,self.l)
     def to_RGB(self) -> "RGB Tuple":
         # Why is this so complicated though
         C= (1-abs(2*self.l-1))*self.s
@@ -44,7 +46,7 @@ class HSL:
     # Preview color
     def preview(self):
         r,g,b = self.to_RGB()
-        print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} \033[0m")
+        print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {self.h},{self.s},{self.l} \033[0m")
     # Color options
     def complementary(self) -> "HSL":
         return self.rotate(180)

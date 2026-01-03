@@ -1,5 +1,7 @@
 from random import random
 from random import choice
+from random import gauss
+from random import expovariate
 from math import floor
 from utils.hsl import HSL
 
@@ -13,7 +15,7 @@ palette_schemes = {
     "tetradic" : lambda c: c.tetradic(),
     "monochromatic" : lambda c: c.monochromatic()
 }
-def get_palette(base: HSL, scheme: str):
+def generate_palette(base: HSL, scheme: str):
     palette = [base]
     try: 
         colors = palette_schemes[scheme](base)
@@ -29,8 +31,24 @@ def get_palette(base: HSL, scheme: str):
 def random_palette(preview=False):
     base = HSL(random()*360,random(),random())
     method = choice(list(palette_schemes.keys()))
-    palette = get_palette(base,method)
+    palette = generate_palette(base,method)
     if preview:
         for i in palette: i.preview()
     return palette
-
+# palette with base color weighted for high saturation medium lightness
+def weighted_palette(preview=False):
+    saturation_mean = 0.75
+    lightness_mean = 0.5
+    lightness_var = 0.25
+    saturation = -1
+    lightness = -1
+    while saturation<0 or 1<saturation:
+        saturation = 1-expovariate(1/(1-saturation_mean))
+    while lightness<0 or 1<lightness:
+        lightness = gauss(lightness_mean,lightness_var)
+    base = HSL(random()*360,saturation,lightness)
+    method = choice(list(palette_schemes.keys()))
+    palette = generate_palette(base,method)
+    if preview:
+        for i in palette: i.preview()
+    return palette
