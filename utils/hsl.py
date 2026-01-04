@@ -46,8 +46,9 @@ class HSL:
     # Preview color
     def preview(self):
         r,g,b = self.to_RGB()
-        print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {self.h},{self.s},{self.l} \033[0m")
-    # Color options
+        r_h, r_s, r_l = round(self.h,3),round(self.s,3),round(self.l,3)
+        print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {r_h},{r_s},{r_l} \033[0m")
+    # Colorscheme options
     def complementary(self) -> "HSL":
         return self.rotate(180)
     def split_complementary(self):
@@ -105,6 +106,80 @@ class HSL:
             for i in range(halved+extra[1]):
                 colors.append(self.lighten((i+1)*lightness_step))
             return tuple(colors)
+    
+    # expansion methods
+    fudges = {
+            'h' : lambda c,x: c.rotate(x),
+            's' : lambda c,x: c.saturate(x),
+            'l' : lambda c,x: c.lighten(x)
+            }
+    hue_fudge = 30 # Max fudge of hue
+    min_hue_fudge = 5
+    sat_fudge = 0.4 # Max fudge of saturation
+    min_sat_fudge = 0.15
+    light_fudge = 0.3 # Max fudge of lightness
+    min_light_fudge = 0.05
+    # Careful to never make min_fudge > bound
+    s_bound = 0.15 # how close to bounds to force a direction
+    l_bound = 0.1 
+    # unidirectional fudge
+    def N_fudge(self,N=1,param='h'):
+        if param == 'h':
+            dir = [-1,1][random()<=0.5]
+            fudge_amount = self.min_hue_fudge+(random()*(self.hue_fudge-self.min_hue_fudge))
+        # if close to bounds of S or L, don't fudge towards center
+        # also don't fudge O.O.B.
+        if param == 's':
+            if self.s < self.s_bound: dir = 1
+            elif self.s > 1-self.s_bound: dir = -1
+            else: dir = [-1,1][random()<=0.5]
+            if (self.s+dir*self.sat_fudge)<0 or (self.s+dir*self.sat_fudge)>1:
+                fudge_amount = min((1-self.s),self.s)
+            else: fudge_amount = self.sat_fudge
+            fudge_amount = self.min_sat_fudge+(random()*(fudge_amount-self.min_sat_fudge))
+        if param == 'l':
+            if self.l < self.l_bound: dir = 1
+            elif self.l > 1-self.l_bound: dir = -1
+            else: dir = [-1,1][random()<=0.5]
+            if (self.l+dir*self.light_fudge)<0 or (self.l+dir*self.light_fudge)>1:
+                fudge_amount = min((1-self.l),self.l)
+            else: fudge_amount = self.light_fudge
+            fudge_amount = self.min_light_fudge+(random()*(fudge_amount-self.min_light_fudge))
+        # Get fudged colors
+        fudge_amount = fudge_amount/N
+        colors = []
+        for i in range(N):
+            colors.append(self.fudges[param](self,fudge_amount*dir*(i+1)))
+        return colors
+    # symmetric fudge
+    # If called close to an edge, instead fudge unidirectionally
+    def sym_fudge(self,N=1,param='h'):
+        if param == 'h':
+            fudge_amount = random()*self.hue_fudge
+            fudge_amount = self.min_hue_fudge+(random()*(fudge_amount-self.min_hue_fudge))
+        # don't fudge O.O.B.
+        if param == 's':
+            if self.s < self.s_bound or self.s > 1-self.s_bound:
+                return self.N_fudge(2*N,param)
+            if (self.s-self.sat_fudge)<0 or (self.s+self.sat_fudge)>1:
+                fudge_amount = min((1-self.s),self.s)
+            else: fudge_amount = self.sat_fudge
+            fudge_amount = random()*fudge_amount
+            fudge_amount = self.min_sat_fudge+(random()*(fudge_amount-self.min_sat_fudge))
+        if param == 'l':
+            if self.l < self.l_bound or self.l > 1-self.l_bound:
+                return self.N_fudge(2*N,param)
+            if (self.l-self.light_fudge)<0 or (self.l+self.light_fudge)>1:
+                fudge_amount = min((1-self.l),self.l)
+            else: fudge_amount = self.light_fudge
+            fudge_amount = self.min_light_fudge+(random()*(fudge_amount-self.min_light_fudge))
+        # Get fudged colors
+        fudge_amount = fudge_amount/N
+        colors = []
+        for i in range(N):
+            colors.append(self.fudges[param](self,fudge_amount*-(i+1)))
+            colors.append(self.fudges[param](self,fudge_amount*(i+1)))
+        return colors
 
 #RGB to HSL
 def RGB_to_HSL(rgb:tuple):
