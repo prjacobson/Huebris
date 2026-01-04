@@ -47,10 +47,14 @@ class HSL:
                 r,g,b = (C,0,X)
         return (round((r+m)*255), round((g+m)*255), round((b+m)*255)) 
     # Preview color
-    def preview(self):
+    def preview(self, verbose=False):
         r,g,b = self.to_RGB()
-        r_h, r_s, r_l = round(self.h,3),round(self.s,3),round(self.l,3)
-        print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {r_h},{r_s},{r_l} \033[0m")
+        if verbose:
+            r_h, r_s, r_l = round(self.h,3),round(self.s,3),round(self.l,3)
+            print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {r_h},{r_s},{r_l} \033[0m")
+        else:
+            hexed = lambda c : hex(floor(c/1))[2:].zfill(2)
+            print(f"\033[48;2;{r};{g};{b}m RGB: #{hexed(r)}{hexed(g)}{hexed(g)} \033[0m")
     # Colorscheme options
     def complementary(self) -> "HSL":
         return self.rotate(180)
