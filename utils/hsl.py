@@ -124,6 +124,8 @@ class HSL:
     l_bound = 0.1 
     # unidirectional fudge
     def N_fudge(self,N=1,param='h'):
+        if N==0:
+            return []
         if param == 'h':
             dir = [-1,1][random()<=0.5]
             fudge_amount = self.min_hue_fudge+(random()*(self.hue_fudge-self.min_hue_fudge))
@@ -154,6 +156,8 @@ class HSL:
     # symmetric fudge
     # If called close to an edge, instead fudge unidirectionally
     def sym_fudge(self,N=1,param='h'):
+        if N==0:
+            return []
         if param == 'h':
             fudge_amount = random()*self.hue_fudge
             fudge_amount = self.min_hue_fudge+(random()*(fudge_amount-self.min_hue_fudge))
