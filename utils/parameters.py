@@ -1,0 +1,19 @@
+# Colorscheme options
+monochrome_range = 0.25
+
+# Fudge Options
+hue_fudge = 30 # Max fudge of hue
+min_hue_fudge = 5
+sat_fudge = 0.4 # Max fudge of saturation
+min_sat_fudge = 0.15
+light_fudge = 0.3 # Max fudge of lightness
+min_light_fudge = 0.05
+# Careful to never make min_fudge > bound
+s_bound = 0.15 # how close to bounds to force a direction
+l_bound = 0.1 
+
+# Weighted palette options
+saturation_mean = 0.75
+lightness_mean = 0.5
+lightness_var = 0.25
+

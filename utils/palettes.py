@@ -5,8 +5,8 @@ from random import expovariate
 from math import floor
 import copy
 from utils.hsl import HSL
+import utils.parameters as par
 
-#Palettes
 # Unsure if palettes should be class? Maybe not
 palette_schemes = {
     "complementary" : lambda c: c.complementary(),
@@ -29,6 +29,7 @@ def generate_palette(base: HSL, scheme: str):
     except KeyError:
          raise ValueError(f"Unknown palette scheme: {scheme}")
 
+# Colorscheme palettes
 # Get random palette
 def random_palette(preview=False,base=None,method=None):
     if base is None:
@@ -41,9 +42,9 @@ def random_palette(preview=False,base=None,method=None):
     return palette
 # palette with base color weighted for high saturation medium lightness
 def weighted_palette(preview=False,base=None,method=None):
-    saturation_mean = 0.75
-    lightness_mean = 0.5
-    lightness_var = 0.25
+    saturation_mean = par.saturation_mean
+    lightness_mean = par.lightness_mean
+    lightness_var = par.lightness_var
     saturation = -1
     lightness = -1
     while saturation<0 or 1<saturation:
@@ -59,6 +60,7 @@ def weighted_palette(preview=False,base=None,method=None):
         for i in palette: i.preview()
     return palette
 
+# Expanding colorscheme palettes with fudging
 # Expand to N total colors
 expansion_methods = {
         "unidirectional" : lambda c, n, p: c.N_fudge(N=n, param=p),

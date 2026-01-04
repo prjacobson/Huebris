@@ -2,6 +2,7 @@ from random import random
 from math import floor
 # This will come in handy
 from dataclasses import dataclass
+import utils.parameters as par
 @dataclass
 class HSL:
     h: float
@@ -80,7 +81,7 @@ class HSL:
         # count=4 => base + 4 k
         colors = []
         # Set range
-        lightness_range = 0.25
+        lightness_range = par.monochrome_range
         lightness_step = lightness_range/(count+1)
         # Take appropriate steps
         if (self.l-(count/2)*lightness_step) < 0:
@@ -113,15 +114,14 @@ class HSL:
             's' : lambda c,x: c.saturate(x),
             'l' : lambda c,x: c.lighten(x)
             }
-    hue_fudge = 30 # Max fudge of hue
-    min_hue_fudge = 5
-    sat_fudge = 0.4 # Max fudge of saturation
-    min_sat_fudge = 0.15
-    light_fudge = 0.3 # Max fudge of lightness
-    min_light_fudge = 0.05
-    # Careful to never make min_fudge > bound
-    s_bound = 0.15 # how close to bounds to force a direction
-    l_bound = 0.1 
+    hue_fudge = par.hue_fudge
+    min_hue_fudge = par.min_hue_fudge
+    sat_fudge = par.sat_fudge
+    min_sat_fudge = par.min_sat_fudge
+    light_fudge = par.light_fudge
+    min_light_fudge = par.min_light_fudge
+    s_bound = par.s_bound
+    l_bound = par.l_bound
     # unidirectional fudge
     def N_fudge(self,N=1,param='h'):
         if N==0:
