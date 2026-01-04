@@ -1,3 +1,5 @@
+# Generates palettes of colors and expands palettes to arbitrary size
+
 from random import random
 from random import choice
 from random import gauss

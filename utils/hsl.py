@@ -1,3 +1,5 @@
+# Defines the hsl() class and things you can do to/with a color
+
 from random import random
 from math import floor
 # This will come in handy

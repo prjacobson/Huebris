@@ -1,3 +1,5 @@
+# Stores parameter values used across files for easier modification
+
 # Colorscheme options
 monochrome_range = 0.25
 
