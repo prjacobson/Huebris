@@ -54,7 +54,7 @@ class HSL:
             print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {r_h},{r_s},{r_l} \033[0m")
         else:
             hexed = lambda c : hex(floor(c/1))[2:].zfill(2)
-            print(f"\033[48;2;{r};{g};{b}m RGB: #{hexed(r)}{hexed(g)}{hexed(g)} \033[0m")
+            print(f"\033[48;2;{r};{g};{b}m RGB: #{hexed(r)}{hexed(g)}{hexed(b)} \033[0m")
     # Colorscheme options
     def complementary(self) -> "HSL":
         return self.rotate(180)
@@ -191,6 +191,22 @@ class HSL:
             colors.append(self.fudges[param](self,fudge_amount*(i+1)))
         return colors
 
+    # Calculate relative luminance
+    def relative_luminance(self):
+        r,g,b = self.to_RGB()
+        # sRGB space
+        Rs,Gs,Bs = r/255,g/255,b/255
+        # Get R G B for luminance calculation
+        if Rs <= 0.03928: Rl = Rs/12.92
+        else: Rl = ((Rs+0.055)/1.055)**2.4
+        if Gs <= 0.03928: Gl = Gs/12.92
+        else: Gl = ((Gs+0.055)/1.055)**2.4
+        if Bs <= 0.03928: Bl = Bs/12.92
+        else: Bl = ((Bs+0.055)/1.055)**2.4
+        L = 0.2126*Rl + 0.7152*Gl + 0.0722*Bl
+        return L
+
+
 #RGB to HSL
 def RGB_to_HSL(rgb:tuple):
     R, G, B = rgb
@@ -217,4 +233,10 @@ def RGB_to_HSL(rgb:tuple):
         S = delta/(1-abs(2*L-1))
     return HSL(H,S,L)
 
-
+# Contrast ratio
+def contrast_ratio(c1:HSL,c2:HSL):
+    L1 = c1.relative_luminance()
+    L2 = c2.relative_luminance()
+    lighter = max(L1,L2)
+    darker = min(L1,L2)
+    return (lighter+0.05)/(darker+0.05)

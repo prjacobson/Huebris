@@ -18,4 +18,11 @@ l_bound = 0.1
 saturation_mean = 0.75
 lightness_mean = 0.5
 lightness_var = 0.25
-
+# Preferential palette weights
+complementary_amt = 3
+split_complementary_amt = 3
+analogous_amt = 3
+triadic_amt = 2
+square_amt = 1
+tetradic_amt = 2
+monochromatic_amt = 1

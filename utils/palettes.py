@@ -19,6 +19,7 @@ palette_schemes = {
     "tetradic" : lambda c: c.tetradic(),
     "monochromatic" : lambda c: c.monochromatic()
 }
+# Generate a palette given a base color and scheme
 def generate_palette(base: HSL, scheme: str):
     palette = [base]
     try: 
@@ -61,6 +62,19 @@ def weighted_palette(preview=False,base=None,method=None):
     if preview:
         for i in palette: i.preview()
     return palette
+# palette with weighted start and scheme biased towards my preferences
+def preferential_palette(preview=False,base=None,method=None):
+    if method is None:
+        preferential_schemes = []
+        preferential_schemes.extend(["complementary"]*par.complementary_amt)
+        preferential_schemes.extend(["split_complementary"]*par.split_complementary_amt)
+        preferential_schemes.extend(["analogous"]*par.analogous_amt)
+        preferential_schemes.extend(["triadic"]*par.triadic_amt)
+        preferential_schemes.extend(["square"]*par.square_amt)
+        preferential_schemes.extend(["tetradic"]*par.tetradic_amt)
+        preferential_schemes.extend(["monochromatic"]*par.monochromatic_amt)
+        method = choice(preferential_schemes)
+    return weighted_palette(preview=preview,base=base,method=method)
 
 # Expanding colorscheme palettes with fudging
 # Expand to N total colors
@@ -116,6 +130,12 @@ def random_N_palette(N=5,preview=False,base=None,method=None):
 def weighted_N_palette(N=5,preview=False,base=None,method=None):
     base_palette = weighted_palette(base=base,method=method)
     N_palette = bigger_palette(base_palette,size=N)
+    if preview:
+        for i in N_palette: i.preview()
+    return N_palette
+def preferential_N_palette(N=5,preview=False,base=None,method=None):
+    base_palette = preferential_palette(base=base,method=method)
+    N_palette = bigger_palette(base_palette, size=N)
     if preview:
         for i in N_palette: i.preview()
     return N_palette
