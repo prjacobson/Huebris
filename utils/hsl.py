@@ -113,7 +113,6 @@ class HSL:
             for i in range(halved+extra[1]):
                 colors.append(self.lighten((i+1)*lightness_step))
             return tuple(colors)
-    
     # expansion methods
     fudges = {
             'h' : lambda c,x: c.rotate(x),
@@ -190,7 +189,26 @@ class HSL:
             colors.append(self.fudges[param](self,fudge_amount*-(i+1)))
             colors.append(self.fudges[param](self,fudge_amount*(i+1)))
         return colors
-
+    # Get closest named color
+    def get_name(self):
+        match(self.h):
+            case _ if self.h<30 or self.h>=330:
+                return 'red'
+            case _ if 30<=self.h<90:
+                return 'yellow'
+            case _ if 90<=self.h<150:
+                return 'green'
+            case _ if 150<=self.h<210:
+                return 'cyan'
+            case _ if 210<=self.h<270:
+                return 'blue'
+            case _ if 270<=self.h<330:
+                return 'magenta'
+    def get_named_color(self,color):
+        start_color = self.get_name()
+        color_list = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
+        rotate_amt = ((color_list.index(color)-color_list.index(start_color))%6)*60
+        return self.rotate(rotate_amt)
     # Calculate relative luminance
     def relative_luminance(self):
         r,g,b = self.to_RGB()
