@@ -26,3 +26,7 @@ triadic_amt = 2
 square_amt = 1
 tetradic_amt = 2
 monochromatic_amt = 1
+
+# Theme options
+bright_lighten = 0.2 # how much to lighten for 'bright' colors
+bright_saturate_percentage = .9 # how much to desaturate bright color
