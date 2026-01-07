@@ -2,6 +2,8 @@
 
 from random import random
 from random import choice
+from math import floor
+import copy
 import utils.hsl as hsl
 import utils.palettes as pal
 import utils.parameters as par
@@ -15,8 +17,9 @@ def lightness_gradient(color):
     return grad
 
 # Get terminal colors 
-def get_term_colors(color):
+def get_term_colors(color,preview=False):
     # Weird structure so I can flip bright/normal if need be
+    color.l = min(color.l,par.term_max_brightness)
     red, green, yellow, blue, magenta, cyan = [],[],[],[],[],[]
     red.append(color.get_named_color('red'))
     green.append(color.get_named_color('green'))
@@ -38,6 +41,28 @@ def get_term_colors(color):
         for c in [red, green, yellow, blue, magenta, cyan]:
             c[0].s = c[0].s*par.bright_saturate_percentage
             c.reverse()
-    term_colors = [red,green,yellow,blue,magenta,cyan]
+    # black and white
+    base_hue = color.h
+    black = [hsl.HSL(base_hue,par.black_saturation,par.black_lightness),hsl.HSL(base_hue,par.bright_black_saturation,par.bright_black_lightness)]
+    white = [hsl.HSL(base_hue,par.white_saturation,par.white_lightness),hsl.HSL(base_hue,par.bright_white_saturation,par.bright_white_lightness)]
+    term_colors = [black,red,green,yellow,blue,magenta,cyan,white]
     term_colors = [shade for color in term_colors for shade in color]
+    if preview:
+        def term_color_preview(color):
+            r,g,b = color.to_RGB()
+            hexed = lambda c : hex(floor(c/1))[2:].zfill(2)
+            return (f"\033[48;2;{r};{g};{b}m #{hexed(r)}{hexed(g)}{hexed(b)} \033[0m")
+        # even indices = normal colors, do first
+        normals = ""
+        evens = range(len(term_colors))[::2]
+        for i in evens:
+            normals = normals+term_color_preview(term_colors[i])
+        normals = normals + "\n"
+        brights = ""
+        odds = range(len(term_colors))[1::2]
+        for i in odds:
+            brights = brights+term_color_preview(term_colors[i])
+        brights = brights + "\n"
+        preview_text = normals+brights
+        print(preview_text)
     return term_colors

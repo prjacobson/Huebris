@@ -28,5 +28,15 @@ tetradic_amt = 2
 monochromatic_amt = 1
 
 # Theme options
+term_max_brightness = 0.9
 bright_lighten = 0.2 # how much to lighten for 'bright' colors
 bright_saturate_percentage = .9 # how much to desaturate bright color
+black_saturation = 0.12
+bright_black_saturation = 0.15
+black_lightness = 0.05
+bright_black_lightness = 0.20
+white_saturation = 0.05
+bright_white_saturation = 0.02
+white_lightness = 0.7
+bright_white_lightness = 0.9
+
