@@ -6,10 +6,16 @@ from random import gauss
 from random import expovariate
 from math import floor
 import copy
-from utils.hsl import HSL
+import utils.hsl as hsl
 import utils.parameters as par
 
-# Unsure if palettes should be class? Maybe not
+class palette:
+
+    def __init__(self,primary_colors, scheme: str):
+        self.primary_colors = primary_colors # starting colors
+        self.scheme = scheme # color scheme method used
+
+# All palette schemes    
 palette_schemes = {
     "complementary" : lambda c: c.complementary(),
     "split_complementary" : lambda c: c.split_complementary(),
@@ -19,62 +25,36 @@ palette_schemes = {
     "tetradic" : lambda c: c.tetradic(),
     "monochromatic" : lambda c: c.monochromatic()
 }
+# Preferential list
+preferential_schemes = ["complementary"]*par.complementary_amt+["split_complementary"]*par.split_complementary_amt+["analogous"]*par.analogous_amt+["triadic"]*par.triadic_amt+["square"]*par.square_amt+["tetradic"]*par.tetradic_amt+["monochromatic"]*par.monochromatic_amt
 # Generate a palette given a base color and scheme
 def generate_palette(base: HSL, scheme: str):
-    palette = [base]
+    primary_colors = [base]
     try: 
         colors = palette_schemes[scheme](base)
-        if type(colors) == HSL:
-            palette.append(colors)
+        if type(colors) == hsl.HSL:
+            primary_colors.append(colors)
         else:
-            palette.extend(colors)
-        return palette
+            primary_colors.extend(colors)
+        return palette(primary_colors,scheme)
     except KeyError:
          raise ValueError(f"Unknown palette scheme: {scheme}")
 
 # Colorscheme palettes
 # Get random palette
-def random_palette(preview=False,base=None,method=None):
+def get_palette(base=None,scheme=None,weighted=False,preferential=False):
     if base is None:
-        base = HSL(random()*360,random(),random())
-    if method is None:
-        method = choice(list(palette_schemes.keys()))
-    palette = generate_palette(base,method)
-    if preview:
-        for i in palette: i.preview()
+        if weighted:
+            base = hsl.weighted_HSL()
+        else:
+            base = hsl.random_HSL()
+    if scheme is None:
+        if preferential:
+            scheme = choice(preferential_schemes)
+        else:
+            scheme = choice(list(palette_schemes.keys()))
+    palette = generate_palette(base,scheme)
     return palette
-# palette with base color weighted for high saturation medium lightness
-def weighted_palette(preview=False,base=None,method=None):
-    saturation_mean = par.saturation_mean
-    lightness_mean = par.lightness_mean
-    lightness_var = par.lightness_var
-    saturation = -1
-    lightness = -1
-    while saturation<0 or 1<saturation:
-        saturation = 1-expovariate(1/(1-saturation_mean))
-    while lightness<0 or 1<lightness:
-        lightness = gauss(lightness_mean,lightness_var)
-    if base is None:
-        base = HSL(random()*360,saturation,lightness)
-    if method is None:
-        method = choice(list(palette_schemes.keys()))
-    palette = generate_palette(base,method)
-    if preview:
-        for i in palette: i.preview()
-    return palette
-# palette with weighted start and scheme biased towards my preferences
-def preferential_palette(preview=False,base=None,method=None):
-    if method is None:
-        preferential_schemes = []
-        preferential_schemes.extend(["complementary"]*par.complementary_amt)
-        preferential_schemes.extend(["split_complementary"]*par.split_complementary_amt)
-        preferential_schemes.extend(["analogous"]*par.analogous_amt)
-        preferential_schemes.extend(["triadic"]*par.triadic_amt)
-        preferential_schemes.extend(["square"]*par.square_amt)
-        preferential_schemes.extend(["tetradic"]*par.tetradic_amt)
-        preferential_schemes.extend(["monochromatic"]*par.monochromatic_amt)
-        method = choice(preferential_schemes)
-    return weighted_palette(preview=preview,base=base,method=method)
 
 # Expanding colorscheme palettes with fudging
 # Expand to N total colors

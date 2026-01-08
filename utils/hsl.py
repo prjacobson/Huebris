@@ -1,6 +1,8 @@
 # Defines the hsl() class and things you can do to/with a color
 
 from random import random
+from random import gauss # For weighted color generation
+from random import expovariate # See above
 from math import floor
 # This will come in handy
 from dataclasses import dataclass
@@ -224,6 +226,20 @@ class HSL:
         L = 0.2126*Rl + 0.7152*Gl + 0.0722*Bl
         return L
 
+# Generators
+def random_HSL():
+    return HSL(random()*360,random(),random())
+def weighted_HSL():
+    saturation_mean = par.saturation_mean
+    lightness_mean = par.lightness_mean
+    lightness_var = par.lightness_var
+    saturation = -1
+    lightness = -1
+    while saturation<0 or 1<saturation:
+        saturation = 1-expovariate(1/(1-saturation_mean))
+    while lightness<0 or 1<lightness:
+        lightness = gauss(lightness_mean,lightness_var)
+    return HSL(random()*360,saturation,lightness)
 
 #RGB to HSL
 def RGB_to_HSL(rgb:tuple):
