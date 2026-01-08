@@ -12,7 +12,7 @@ For each primary color in the palette, a foreground/background pairing is create
 
 ## To-do
 
-* [ ] Convert palettes to a class
+* [x] Convert palettes to a class
 * [x] Basic terminal color generation
   * [ ] Palette aware terminal color generation
 * [ ] Foreground background generation
