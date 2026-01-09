@@ -102,7 +102,7 @@ def get_palette(base=None,scheme=None,weighted=False,preferential=False):
 
 
 # Function to get a random palette of size N
-def random_N_palette(N=5,base=None,scheme=None,weighted=False,preferential=False):
+def get_N_palette(N=5,base=None,scheme=None,weighted=False,preferential=False):
     pal = get_palette(base=base,scheme=scheme,weighted=weighted,preferential=preferential)
     pal.expand_to_N(N)
     return pal

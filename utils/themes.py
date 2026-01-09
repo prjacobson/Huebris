@@ -83,13 +83,56 @@ def get_palette_term_colors(pal):
     # Get distances from pure color
     distance_dict = {}
     color_options = pal.primary_colors+pal.extra_colors
-    for name in list(hsl.named_colors.keys()):
+    for name in hsl.named_colors:
         name_distances = []
         for c in color_options:
             name_distances.append(c.get_named_color_distance(name))
         distance_dict[name] = name_distances
+    # Also get dicts of distances to each named color for every color option
+    color_option_distances = []
+    for p in range(len(color_options)):
+        name_distances = {}
+        for name in hsl.named_colors:
+            name_distances[name] = distance_dict[name][p]
+        color_option_distances.append(name_distances)
     # Select best fit for colors (or no fit)
-
+    # Select a color for name if a) color is closest to name b) name is the closest named color
+    term_picks = {}
+    fitting_colors = True # you always start with at least one fitting color
+    while fitting_colors:
+        colors_found = []
+        indexes_to_delete = []
+        for c in distance_dict:
+            closest_dist = min(distance_dict[c])
+            best_fit_index = distance_dict[c].index(closest_dist)
+            if closest_dist < par.palette_term_hue_range:
+                if closest_dist == min(color_option_distances[best_fit_index].values()):
+                    print("assigning " + c)
+                    term_picks[c] = color_options[best_fit_index]
+                    # Stop searching for this color
+                    colors_found.append(c)
+                    # Remove this palette color from the colors we're selecting from
+                    # Remove this palette's distances from the distance dict
+                    indexes_to_delete.append(best_fit_index)
+        # Stop searching for this color
+        for found in colors_found:
+            distance_dict.pop(found) # Stop searching for this terminal color
+            for c in color_option_distances:
+                c.pop(found)
+        # Remove these colors from color options
+        for index in sorted(indexes_to_delete, reverse = True): # Reverse so we delete from end
+            del color_options[index]
+            del color_option_distances[index]
+            # Remove these distances from distance dict
+            for c in distance_dict:
+                del distance_dict[c][index]
+        # Update whether any colors fit
+        if len(color_options) != 0:
+            all_distances = [dist for dists in distance_dict.values() for dist in dists]
+            fitting_colors = min(all_distances) < par.palette_term_hue_range
+        else: fitting_colors = False
     # Fill in other colors
+    # TODO
 
-    return distance_dict
+    return distance_dict,color_option_distances,term_picks
+
