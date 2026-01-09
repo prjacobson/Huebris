@@ -39,32 +39,34 @@ class terminal_colors:
         print(preview_text)
 
 # Get terminal colors 
-# Basic doesn't account for color scheme, just goes off first color with 60degree rotations
-def get_basic_term_colors(base,preview=False):
+# Given a set of 6 colors, create paired bright/dark colors
+def get_matched_term_colors(term_colors):
+    term_colors
+    # check each color individually
+    normal = []
+    bright = []
+    for c in term_colors:
+        color = hsl.HSL(c.h,c.s,min(c.l,par.term_max_brightness))
+        darken = color.l+par.bright_lighten>par.term_max_brightness
+        lighten_dir = [1,-1][darken]
+        if darken:
+            bright.append(color)
+            normal.append(color.lighten(lighten_dir*par.bright_lighten))
+        else:
+            normal.append(color)
+            bright.append(color.lighten(lighten_dir*par.bright_lighten))
+    for c in bright:
+        c.s = c.s*par.bright_saturate_percentage
+    return normal, bright
+# Basic doesn't account for color scheme, just goes off a base color (usually first primary color) with 60degree rotations
+def get_basic_term_colors(base):
     # Weird structure so I can flip bright/normal if need be
     color = hsl.HSL(base.h,base.s,min(base.l,par.term_max_brightness))
     color_set_1 = []
-    color_set_1.append(color.get_named_color('red'))
-    color_set_1.append(color.get_named_color('green'))
-    color_set_1.append(color.get_named_color('yellow'))
-    color_set_1.append(color.get_named_color('blue'))
-    color_set_1.append(color.get_named_color('magenta'))
-    color_set_1.append(color.get_named_color('cyan'))
-    # If base color too light, darken instead
-    darken = color.l+par.bright_lighten>par.term_max_brightness
-    lighten_dir = [1,-1][darken]
-    color_set_2 = []
-    color_set_2.append(color_set_1[0].lighten(lighten_dir*par.bright_lighten))
-    color_set_2.append(color_set_1[1].lighten(lighten_dir*par.bright_lighten))
-    color_set_2.append(color_set_1[2].lighten(lighten_dir*par.bright_lighten))
-    color_set_2.append(color_set_1[3].lighten(lighten_dir*par.bright_lighten))
-    color_set_2.append(color_set_1[4].lighten(lighten_dir*par.bright_lighten))
-    color_set_2.append(color_set_1[5].lighten(lighten_dir*par.bright_lighten))
-    # If we darkened, color set 2 should be normal colors. Else color set 1
-    normal = [color_set_1,color_set_2][darken]
-    bright = [color_set_2,color_set_1][darken]
-    for c in bright:
-        c.s = c.s*par.bright_saturate_percentage
+    for c in hsl.named_colors:
+        color_set_1.append(color.get_named_color(c))
+    # get normal/bright colors
+    normal, bright = get_matched_term_colors(color_set_1)
     # black and white
     base_hue = color.h
     black = hsl.HSL(base_hue,par.black_saturation,par.black_lightness)
@@ -76,3 +78,18 @@ def get_basic_term_colors(base,preview=False):
     bright.insert(0,bright_black)
     bright.append(bright_white)
     return terminal_colors(normal,bright)
+# Palette will select the first colors from the primary colors and use similar differences
+def get_palette_term_colors(pal):
+    # Get distances from pure color
+    distance_dict = {}
+    color_options = pal.primary_colors+pal.extra_colors
+    for name in list(hsl.named_colors.keys()):
+        name_distances = []
+        for c in color_options:
+            name_distances.append(c.get_named_color_distance(name))
+        distance_dict[name] = name_distances
+    # Select best fit for colors (or no fit)
+
+    # Fill in other colors
+
+    return distance_dict

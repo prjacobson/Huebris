@@ -7,6 +7,18 @@ from math import floor
 # This will come in handy
 from dataclasses import dataclass
 import utils.parameters as par
+
+# Name some colors (ordered for terminal colors)
+named_colors = {
+        'red' : 0,
+        'green': 120,
+        'yellow': 60,
+        'blue': 240,
+        'magenta': 300,
+        'cyan': 180
+        }
+
+# Define HSL class and functions
 @dataclass
 class HSL:
     h: float
@@ -206,6 +218,11 @@ class HSL:
                 return 'blue'
             case _ if 270<=self.h<330:
                 return 'magenta'
+    def get_named_color_distance(self,name):
+        hue = self.h
+        named_hue = named_colors[name]
+        distance = min(abs(named_hue-hue),360-abs(named_hue-hue))
+        return distance
     def get_named_color(self,color):
         start_color = self.get_name()
         color_list = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
