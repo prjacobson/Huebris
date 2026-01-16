@@ -15,6 +15,8 @@ For each primary color in the palette, a foreground/background pairing is create
 * [x] Convert palettes to a class
 * [x] Basic terminal color generation
   * [ ] Palette aware terminal color generation
+    * [x] Pick colors from palette
+    * [x] Skip identical (close?) hues
 * [ ] Foreground background generation
   * [ ] ...with contrast checking
 * [ ] Output palette to `.json`(?) file

@@ -83,6 +83,17 @@ def get_palette_term_colors(pal):
     # Get distances from pure color
     distance_dict = {}
     color_options = pal.primary_colors+pal.extra_colors
+    # Elimate identical hues
+    hues = [i.h for i in color_options]
+    dupes = []
+    # Slow but fine at this size
+    for h in range(len(hues)):
+        for i in range(h+1,len(hues)):
+            if min(abs(hues[h]-hues[i]),360-abs(hues[h]-hues[i])) < par.palette_term_hue_range:
+                dupes.append(i)
+    dupes = list(set(dupes)) # Remove dupes
+    dupes.sort(reverse=True) # Remove from end backwards
+    for i in dupes: color_options.pop(i)
     for name in hsl.named_colors:
         name_distances = []
         for c in color_options:
@@ -97,6 +108,7 @@ def get_palette_term_colors(pal):
         color_option_distances.append(name_distances)
     # Select best fit for colors (or no fit)
     # Select a color for name if a) color is closest to name b) name is the closest named color
+    # Maybe jank? But works.
     term_picks = {}
     fitting_colors = True # you always start with at least one fitting color
     while fitting_colors:
