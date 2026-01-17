@@ -25,8 +25,7 @@ class terminal_colors:
     def preview(self):
         def term_color_preview(color):
             r,g,b = color.to_RGB()
-            hexed = lambda c : hex(floor(c/1))[2:].zfill(2)
-            return (f"\033[48;2;{r};{g};{b}m #{hexed(r)}{hexed(g)}{hexed(b)} \033[0m")
+            return (f"\033[48;2;{r};{g};{b}m #{color.hexed()} \033[0m")
         normals = ""
         for i in range(len(self.normal_colors)):
             normals = normals+term_color_preview(self.normal_colors[i])
@@ -78,6 +77,10 @@ def get_basic_term_colors(base):
     bright.insert(0,bright_black)
     bright.append(bright_white)
     return terminal_colors(normal,bright)
+def get_colored_term_colors(base):
+   return None 
+'''
+# Not functioning, can't figure out a good way to fill in colors without overcomplicating
 # Palette will select the first colors from the primary colors and use similar differences
 def get_palette_term_colors(pal):
     # Get distances from pure color
@@ -145,6 +148,5 @@ def get_palette_term_colors(pal):
         else: fitting_colors = False
     # Fill in other colors
     # TODO
-
     return distance_dict,color_option_distances,term_picks
-
+'''
