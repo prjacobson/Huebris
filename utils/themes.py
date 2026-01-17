@@ -84,10 +84,12 @@ def get_colored_term_colors(base,amt=par.colorize_amt):
     colors = list(hsl.named_colors.keys())
     base_color_name = base_color.get_name()
     term_dict = {}
+    # Pick colorization amount based on lightness
+    lightness_amt = floor(abs(base_color.l-0.5)/0.125)+1
     # Decolor the base
-    decolor = base_color.colorize(base_color_name,amt=-amt)
+    decolor = base_color.colorize(base_color_name,amt=-amt/lightness_amt)
     for c in colors:
-        term_dict[c] = decolor.colorize(c,amt=amt)
+        term_dict[c] = decolor.colorize(c,amt=amt/lightness_amt)
     # reset base color
     term_dict[base_color_name] = base_color
     term_color_list = [term_dict[i] for i in colors]
