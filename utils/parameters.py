@@ -28,6 +28,7 @@ tetradic_amt = 2
 monochromatic_amt = 1
 
 # Term options
+term_min_brightness = 0.1
 term_max_brightness = 0.9
 bright_lighten = 0.2 # how much to lighten for 'bright' colors
 bright_saturate_percentage = .9 # how much to desaturate bright color
@@ -39,6 +40,6 @@ white_saturation = 0.05
 bright_white_saturation = 0.02
 white_lightness = 0.7
 bright_white_lightness = 0.9
-colorize_amt = 50
+colorize_amt = 25
 palette_term_hue_closeness = 10 # how close can palette hues be
 palette_term_hue_range = 60 # how far away a hue can be from a 'standard' terminal color
