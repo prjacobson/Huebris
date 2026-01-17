@@ -40,7 +40,6 @@ class terminal_colors:
 # Get terminal colors 
 # Given a set of 6 colors, create paired bright/dark colors
 def get_matched_term_colors(term_colors):
-    term_colors
     # check each color individually
     normal = []
     bright = []
@@ -57,6 +56,14 @@ def get_matched_term_colors(term_colors):
     for c in bright:
         c.s = c.s*par.bright_saturate_percentage
     return normal, bright
+def get_white_black_term_colors(base):
+    # black and white
+    base_hue = base.h
+    black = hsl.HSL(base_hue,par.black_saturation,par.black_lightness)
+    bright_black = hsl.HSL(base_hue,par.bright_black_saturation,par.bright_black_lightness)
+    white = hsl.HSL(base_hue,par.white_saturation,par.white_lightness)
+    bright_white = hsl.HSL(base_hue,par.bright_white_saturation,par.bright_white_lightness)
+    return black, bright_black, white, bright_white
 # Basic doesn't account for color scheme, just goes off a base color (usually first primary color) with 60degree rotations
 def get_basic_term_colors(base):
     # Weird structure so I can flip bright/normal if need be
@@ -66,19 +73,30 @@ def get_basic_term_colors(base):
         color_set_1.append(color.get_named_color(c))
     # get normal/bright colors
     normal, bright = get_matched_term_colors(color_set_1)
-    # black and white
-    base_hue = color.h
-    black = hsl.HSL(base_hue,par.black_saturation,par.black_lightness)
-    bright_black = hsl.HSL(base_hue,par.bright_black_saturation,par.bright_black_lightness)
-    white = hsl.HSL(base_hue,par.white_saturation,par.white_lightness)
-    bright_white = hsl.HSL(base_hue,par.bright_white_saturation,par.bright_white_lightness)
+    black, bright_black, white, bright_white = get_white_black_term_colors(base)
     normal.insert(0,black)
     normal.append(white)
     bright.insert(0,bright_black)
     bright.append(bright_white)
     return terminal_colors(normal,bright)
 def get_colored_term_colors(base):
-   return None 
+    colors = list(hsl.named_colors.keys())
+    base_color = base.get_name()
+    term_dict = {}
+    # Decolor the base
+    decolor = base.colorize(base_color,amt=-par.colorize_amt)
+    for c in colors:
+        term_dict[c] = decolor.colorize(c)
+    # reset base color
+    term_dict[base_color] = base
+    term_color_list = [term_dict[i] for i in colors]
+    normal, bright = get_matched_term_colors(term_color_list)
+    black, bright_black, white, bright_white = get_white_black_term_colors(base)
+    normal.insert(0,black)
+    normal.append(white)
+    bright.insert(0,bright_black)
+    bright.append(bright_white)
+    return terminal_colors(normal,bright)
 '''
 # Not functioning, can't figure out a good way to fill in colors without overcomplicating
 # Palette will select the first colors from the primary colors and use similar differences

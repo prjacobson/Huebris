@@ -231,6 +231,23 @@ class HSL:
         color_list = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
         rotate_amt = ((color_list.index(color)-color_list.index(start_color))%6)*60
         return self.rotate(rotate_amt)
+    def colorize(self,color,amt=par.colorize_amt):
+        r,g,b = self.to_RGB()
+        change_rgb_dict = {
+                'red': [True,False,False],
+                'yellow': [True,True,False],
+                'green': [False,True,False],
+                'cyan': [False,True,True],
+                'blue': [False,False,True],
+                'magenta': [True,False,True]}
+        change_rgb = change_rgb_dict[color]
+        if change_rgb[0]:
+            r = max(0,min(r + amt,255))
+        if change_rgb[1]:
+            g = max(0,min(g + amt,255))
+        if change_rgb[2]:
+            b = max(0,min(b + amt,255))
+        return RGB_to_HSL((r,g,b))
     # Calculate relative luminance
     def relative_luminance(self):
         r,g,b = self.to_RGB()
@@ -284,7 +301,7 @@ def RGB_to_HSL(rgb:tuple):
     if delta == 0:
         S = 0
     else:
-        S = delta/(1-abs(2*L-1))
+        S = min(delta/(1-abs(2*L-1)),1)
     return HSL(H,S,L)
 
 # Contrast ratio
