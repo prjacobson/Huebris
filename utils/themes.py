@@ -1,4 +1,4 @@
-# Generates themes from a given palette
+# Generates terminal colors
 
 from random import random
 from random import choice
@@ -103,7 +103,7 @@ def get_white_black_term_colors(base):
     return black, bright_black, white, bright_white
 # Full term colors
 # Basic doesn't account for color scheme, just goes off a base color (usually first primary color) with 60degree rotations
-def get_basic_term_colors(base):
+def basic_term_colors(base):
     # Weird structure so I can flip bright/normal if need be
     color = hsl.HSL(base.h,base.s,max(par.term_min_brightness,min(base.l,par.term_max_brightness)))
     color_set_1 = []
@@ -118,7 +118,7 @@ def get_basic_term_colors(base):
     bright.append(bright_white)
     bg, fg = bg_fg(base,normal)
     return terminal_colors(normal,bright,bg,fg)
-def get_colored_term_colors(base,amt=par.colorize_amt):
+def colored_term_colors(base,amt=par.colorize_amt):
     base_color = hsl.HSL(base.h,base.s,max(par.term_min_brightness,min(base.l,par.term_max_brightness)))
     colors = list(hsl.named_colors.keys())
     base_color_name = base_color.get_name()
