@@ -8,19 +8,55 @@ import utils.hsl as hsl
 import utils.palettes as pal
 import utils.parameters as par
 
-# select first color as "primary" color to build lightness map
-def lightness_gradient(color):
+# Get foreground background
+def full_lightness_gradient(color):
     grad = []
     l_vals = [0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.95, 0.98, 0.99, 1] # Values from Material Design's tonal map
     for l in l_vals:
         grad.append(hsl.HSL(color.h,color.s,l))
     return grad
+def darkness_gradient(color):
+    grad = []
+    l_vals = [0.50 - (i*0.025) for i in range(21)]
+    for l in l_vals:
+        grad.append(hsl.HSL(color.h,color.s,l))
+    return grad
+def lightness_gradient(color):
+    grad = []
+    l_vals = [0.50 + (i*0.025) for i in range(21)]
+    for l in l_vals:
+        grad.append(hsl.HSL(color.h,color.s,l))
+    return grad
+# Foreground Background
+def fg_bg(base,term_colors,fg_contrast=par.fg_contrast, color_contrast=par.color_contrast):
+    # Remove b&w from term_colors
+    colors = []
+    for i in range(1,len(term_colors)):
+        colors.append(term_colors[i])
+    # Check whether to switch to light mode
+    if min([i.l for i in colors]) < par.dark_mode_cuttoff:
+        bg_grad = lightness_gradient(base)
+        fg = hsl.HSL(base.h,base.s,0.1)
+    else:
+        bg_grad = darkness_gradient(base)
+        fg = hsl.HSL(base.h,base.s,0.98)
+    bg_i = 0
+    for i in range(len(bg_grad)):
+        bg_i = i
+        fg_cr = hsl.contrast_ratio(bg_grad[i],fg)
+        color_cr = [hsl.contrast_ratio(bg_grad[i],c) for c in colors]
+        if fg_cr > fg_contrast and min(color_cr) > color_contrast:
+            break
+    bg = bg_grad[bg_i]
+    return bg, fg
 
 class terminal_colors:
 
-    def __init__(self,normal_colors,bright_colors):
+    def __init__(self,normal_colors,bright_colors,fg=None,bg=None):
         self.normal_colors = normal_colors
         self.bright_colors = bright_colors
+        self.fg = fg
+        self.bg = bg
 
     def preview(self):
         def term_color_preview(color):
@@ -100,6 +136,8 @@ def get_colored_term_colors(base,amt=par.colorize_amt):
     bright.insert(0,bright_black)
     bright.append(bright_white)
     return terminal_colors(normal,bright)
+
+
 '''
 # Not functioning, can't figure out a good way to fill in colors without overcomplicating
 # Palette will select the first colors from the primary colors and use similar differences
