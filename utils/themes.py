@@ -27,14 +27,14 @@ def lightness_gradient(color):
     for l in l_vals:
         grad.append(hsl.HSL(color.h,color.s,l))
     return grad
-# Foreground Background
-def fg_bg(base,term_colors,fg_contrast=par.fg_contrast, color_contrast=par.color_contrast):
+# Background and foreground w/ contrast check
+def bg_fg(base,term_colors,fg_contrast=par.fg_contrast, color_contrast=par.color_contrast):
     # Remove b&w from term_colors
     colors = []
     for i in range(1,len(term_colors)):
         colors.append(term_colors[i])
     # Check whether to switch to light mode
-    if min([i.l for i in colors]) < par.dark_mode_cuttoff:
+    if min([i.l for i in colors]) < par.dark_mode_cutoff:
         bg_grad = lightness_gradient(base)
         fg = hsl.HSL(base.h,base.s,0.1)
     else:
@@ -52,7 +52,7 @@ def fg_bg(base,term_colors,fg_contrast=par.fg_contrast, color_contrast=par.color
 
 class terminal_colors:
 
-    def __init__(self,normal_colors,bright_colors,fg=None,bg=None):
+    def __init__(self,normal_colors,bright_colors,bg,fg):
         self.normal_colors = normal_colors
         self.bright_colors = bright_colors
         self.fg = fg
@@ -62,19 +62,20 @@ class terminal_colors:
         def term_color_preview(color):
             r,g,b = color.to_RGB()
             return (f"\033[48;2;{r};{g};{b}m #{color.hexed()} \033[0m")
-        normals = ""
+        normals = term_color_preview(self.bg)+" " # Sneak in bg and fg
         for i in range(len(self.normal_colors)):
             normals = normals+term_color_preview(self.normal_colors[i])
         normals = normals + "\n"
-        brights = ""
+        brights = term_color_preview(self.fg)+" "
         for i in range(len(self.bright_colors)):
             brights = brights+term_color_preview(self.bright_colors[i])
         brights = brights + "\n"
         preview_text = normals+brights
         print(preview_text)
 
-# Get terminal colors 
+# Terminal colors 
 # Given a set of 6 colors, create paired bright/dark colors
+# Utilities
 def get_matched_term_colors(term_colors):
     # check each color individually
     normal = []
@@ -100,6 +101,7 @@ def get_white_black_term_colors(base):
     white = hsl.HSL(base_hue,par.white_saturation,par.white_lightness)
     bright_white = hsl.HSL(base_hue,par.bright_white_saturation,par.bright_white_lightness)
     return black, bright_black, white, bright_white
+# Full term colors
 # Basic doesn't account for color scheme, just goes off a base color (usually first primary color) with 60degree rotations
 def get_basic_term_colors(base):
     # Weird structure so I can flip bright/normal if need be
@@ -114,7 +116,8 @@ def get_basic_term_colors(base):
     normal.append(white)
     bright.insert(0,bright_black)
     bright.append(bright_white)
-    return terminal_colors(normal,bright)
+    bg, fg = bg_fg(base,normal)
+    return terminal_colors(normal,bright,bg,fg)
 def get_colored_term_colors(base,amt=par.colorize_amt):
     base_color = hsl.HSL(base.h,base.s,max(par.term_min_brightness,min(base.l,par.term_max_brightness)))
     colors = list(hsl.named_colors.keys())
@@ -135,7 +138,8 @@ def get_colored_term_colors(base,amt=par.colorize_amt):
     normal.append(white)
     bright.insert(0,bright_black)
     bright.append(bright_white)
-    return terminal_colors(normal,bright)
+    bg, fg = bg_fg(base,normal)
+    return terminal_colors(normal,bright,bg,fg)
 
 
 '''
