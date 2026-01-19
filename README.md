@@ -20,13 +20,14 @@ For each primary color in the palette, a foreground/background pairing is create
     * [x] Skip identical (close?) hues
 * [x] Foreground background generation
   * [x] ...with contrast checking
-* [ ] Output palette to `.json`(?) file
+* [x] Output palette to `.json`(?) file
 * [ ] More varied palette generation
   * [ ] Multistep fudging (H,S, *AND* L)
   * [ ] Non 'standard' schemes (see coolors)
 * [ ] Choice of dark/light theme
 * [ ] Interactive script for generation
-  * [ ] Locakable colors
+  * [ ] Lock-able colors
+  * [ ] Select new base color from given colors
 
 ## Usage
 

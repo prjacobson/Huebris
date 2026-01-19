@@ -1,0 +1,38 @@
+import utils.hsl as hsl
+import utils.palettes as pal
+import utils.term as term
+import utils.parameters as par
+import json
+
+class theme:
+
+    def __init__(self,palette,terminal):
+        self.palette = palette # Palette
+        self.terminal = terminal # Terminal theme
+        self.base_color = self.palette.base_color
+
+    # Preview contents
+    def preview(self):
+        self.palette.preview()
+        self.terminal.preview()
+
+    # Save to json file
+    def save_to_json(self,filename='theme'):
+        palette_dict = {
+                "Base" : self.palette.base_color.hexed(),
+                "Scheme colors" : [i.hexed() for i in self.palette.scheme_colors],
+                "Extra colors" : [i.hexed() for i in self.palette.extra_colors],
+                "Scheme" : self.palette.scheme
+        }
+        term_dict = {
+                "Normal colors" : [i.hexed() for i in self.terminal.normal_colors],
+                "Bright colors" : [i.hexed() for i in self.terminal.bright_colors],
+                "fg" : self.terminal.fg.hexed(),
+                "bg" : self.terminal.bg.hexed()
+        }
+        theme_dict = {
+                "Palette" : palette_dict,
+                "Terminal" : term_dict
+        }
+        with open(filename+'.json', 'w') as f:
+            f.write(json.dumps(theme_dict, indent=4, ensure_ascii=False))

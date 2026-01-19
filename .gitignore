@@ -1,3 +1,5 @@
+# jsons
+*.json
 # Vim swaps
 *.swp
 # Python Cache
