@@ -66,53 +66,76 @@ class palette:
 
 # All palette schemes    
 palette_schemes = {
-    "complementary" : lambda c: c.complementary(),
-    "split_complementary" : lambda c: c.split_complementary(),
-    "analogous" : lambda c: c.analogous(),
-    "triadic" : lambda c: c.triadic(),
-    "square" : lambda c: c.square(),
-    "tetradic" : lambda c: c.tetradic(),
-    "monochromatic" : lambda c: c.monochromatic()
+    "complementary" : lambda c,n: c.complementary(),
+    "split_complementary" : lambda c,n: c.split_complementary(),
+    "analogous" : lambda c,n: c.analogous(),
+    "triadic" : lambda c,n: c.triadic(),
+    "square" : lambda c,n: c.square(),
+    "tetradic" : lambda c,n: c.tetradic(),
+    "monochromatic" : lambda c,n: c.monochromatic(count=n-1)
 }
-# Preferential list
-preferential_schemes = ["complementary"]*par.complementary_amt+["split_complementary"]*par.split_complementary_amt+["analogous"]*par.analogous_amt+["triadic"]*par.triadic_amt+["square"]*par.square_amt+["tetradic"]*par.tetradic_amt+["monochromatic"]*par.monochromatic_amt
 # Generate a palette given a base color and scheme
-def generate_palette(base: HSL, scheme: str):
+def generate_palette(base: HSL, scheme: str,N=4):
+    if N is None:
+        N = 4
     scheme_colors = []
     try: 
-        colors = palette_schemes[scheme](base)
+        colors = palette_schemes[scheme](base,N)
         if type(colors) == hsl.HSL:
             scheme_colors.append(colors)
         else:
             scheme_colors.extend(colors)
-        print("base")
-        print(base)
-        print("scheme")
-        print(scheme_colors)
-        print("scheme used")
-        print(scheme)
         return palette(base,scheme_colors,scheme)
     except KeyError:
          raise ValueError(f"Unknown palette scheme: {scheme}")
 
 # Get random palette
-def random_palette(base=None,scheme=None,weighted=False,preferential=False):
+def random_palette(base=None,scheme=None,weighted=False,preferential=False,N=None):
+    # Preferential list
+    preferential_schemes = ["complementary"]*par.complementary_amt+["split_complementary"]*par.split_complementary_amt+["analogous"]*par.analogous_amt+["triadic"]*par.triadic_amt+["square"]*par.square_amt+["tetradic"]*par.tetradic_amt+["monochromatic"]*par.monochromatic_amt
     if base is None:
         if weighted:
             base = hsl.weighted_HSL()
         else:
             base = hsl.random_HSL()
+    scheme_choices = list(palette_schemes.keys())
+    if N is not None:
+        try:
+            int(N)
+        except ValueError:
+            pass
+        else:
+            N = int(N) # Check for float
+            if N < 1:
+                print(f"N < 1 unsupported, found N = {N}. Setting N to 1")
+                N = 1
+            match(N): # Pick palettes that work
+                case _ if N == 1:
+                    scheme_choices = ['monochromatic']
+                case _ if N == 2:
+                    scheme_choices = ['monochromatic','complementary']
+                case _ if N == 3:
+                    scheme_choices = ['monochromatic', 'complementary', 'triadic', 'analogous','split_complementary']
+                case _ if N > 3:
+                    pass
+    if scheme is not None:
+        if scheme in scheme_choices:
+            pass
+        else:
+            print("Chosen scheme not compatible with palette size")
+            scheme = None
     if scheme is None:
         if preferential:
-            scheme = choice(preferential_schemes)
+            while not scheme in scheme_choices:
+                scheme = choice(preferential_schemes)
         else:
-            scheme = choice(list(palette_schemes.keys()))
-    palette = generate_palette(base,scheme)
+            scheme = choice(scheme_choices)
+    palette = generate_palette(base,scheme,N)
     return palette
 
 
 # Function to get a random palette of size N
 def N_palette(N=5,base=None,scheme=None,weighted=False,preferential=False):
-    pal = random_palette(base=base,scheme=scheme,weighted=weighted,preferential=preferential)
+    pal = random_palette(base=base,scheme=scheme,weighted=weighted,preferential=preferential,N=N)
     pal.expand_to_N(N)
     return pal

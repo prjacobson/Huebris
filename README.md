@@ -8,7 +8,7 @@ An attempt at generating palettes. These will eventually be used for recoloring 
 
 From a given color or (pseudo-)random color, this tool generates a palette of `N` colors and a corresponding dark and light terminal color theme. 
 
-For the base color of the palette, a foreground/background pairing is created with an acceptable contrast ratio (see [Quirks](##Quirks)).
+For the base color of the palette, a foreground/background pairing is created with an acceptable contrast ratio (see [Quirks](#quirks)).
 
 ## To-do
 
@@ -27,9 +27,16 @@ For the base color of the palette, a foreground/background pairing is created wi
   * [ ] Non 'standard' schemes (see coolors)
 * [ ] Choice of dark/light theme
   * [x] Dark/light terminal options
+    * [ ] Brighten/darken term colors to fit?
+* [x] Use compatible scheme for N colors
 * [ ] Interactive script for generation
   * [ ] Select new base color from given colors
   * [ ] Lock-able colors
+
+### Bugs
+* Dark mode/Light mode generation is shoddy
+  * Occasionally both backgrounds are `#000000`
+  * Contrast requirements are forcing a lot of `#000000` or `#ffffff` backgrounds
 
 ## Usage
 
@@ -46,7 +53,7 @@ Here's some things you may notice in generating your palettes:
 * Terminal quirks
   * Sometimes dark mode/light mode are near identical
     * This is because dark/light flips the colors over `lightness = 0.5`, so values close to that won't change much
-  * The background/color contrast requirement of 2.0 is lower than (Web Content Accessibility Guidelines](https://www.w3.org/TR/WCAG21/) recommendation of 3.0 for large text and 4.5 for normal text.
+  * The background/color contrast requirement of 2.0 is lower than [Web Content Accessibility Guidelines](https://www.w3.org/TR/WCAG21/) recommendation of 3.0 for large text and 4.5 for normal text.
     * Even still, the background of 'dark mode' is often set to `#000000` because a high contrast can't be achieved with the given colors
 
 ## How
