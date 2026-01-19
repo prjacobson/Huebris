@@ -25,6 +25,7 @@ For each primary color in the palette, a foreground/background pairing is create
   * [ ] Multistep fudging (H,S, *AND* L)
   * [ ] Non 'standard' schemes (see coolors)
 * [ ] Choice of dark/light theme
+  * [ ] Dark/light terminal options
 * [ ] Interactive script for generation
   * [ ] Lock-able colors
   * [ ] Select new base color from given colors

@@ -8,13 +8,16 @@ class theme:
 
     def __init__(self,palette,terminal):
         self.palette = palette # Palette
-        self.terminal = terminal # Terminal theme
+        terminals = [term.switch_dark_light(palette.base_color, terminal),terminal]
+        self.dark_terminal = terminals[terminal.dark_mode]
+        self.terminal = terminals[not terminal.dark_mode]
         self.base_color = self.palette.base_color
 
     # Preview contents
     def preview(self):
         self.palette.preview()
         self.terminal.preview()
+        self.dark_terminal.preview()
 
     # Save to json file
     def save_to_json(self,filename='theme'):
@@ -30,9 +33,16 @@ class theme:
                 "fg" : self.terminal.fg.hexed(),
                 "bg" : self.terminal.bg.hexed()
         }
+        dark_term_dict = {
+                "Normal colors" : [i.hexed() for i in self.dark_terminal.normal_colors],
+                "Bright colors" : [i.hexed() for i in self.dark_terminal.bright_colors],
+                "fg" : self.dark_terminal.fg.hexed(),
+                "bg" : self.dark_terminal.bg.hexed()
+                }
         theme_dict = {
                 "Palette" : palette_dict,
-                "Terminal" : term_dict
+                "Terminal" : term_dict,
+                "Dark terminal" : dark_term_dict
         }
         with open(filename+'.json', 'w') as f:
             f.write(json.dumps(theme_dict, indent=4, ensure_ascii=False))

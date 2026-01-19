@@ -57,6 +57,7 @@ class terminal_colors:
         self.bright_colors = bright_colors
         self.fg = fg
         self.bg = bg
+        self.dark_mode = fg.l > bg.l
 
     def preview(self):
         def term_color_preview(color):
@@ -142,7 +143,18 @@ def colored_term_colors(base,amt=par.colorize_amt):
     bg, fg = bg_fg(base,normal)
     return terminal_colors(normal,bright,bg,fg)
 
-
+# Dark mode <-> Light mode
+def switch_dark_light(base,term:terminal_colors):
+    flip = lambda c: hsl.HSL(c.h,c.s,-(c.l-0.5)+0.5)
+    flipped_colors = [flip(c) for c in term.normal_colors]
+    normal, bright = get_matched_term_colors(flipped_colors)
+    black, bright_black, white, bright_white = get_white_black_term_colors(base)
+    normal.insert(0,black)
+    normal.append(white)
+    bright.insert(0,bright_black)
+    bright.append(bright_white)
+    bg, fg = bg_fg(base,normal)
+    return terminal_colors(normal,bright,bg,fg)
 '''
 # Not functioning, can't figure out a good way to fill in colors without overcomplicating
 # Palette will select the first colors from the primary colors and use similar differences
