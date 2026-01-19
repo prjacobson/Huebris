@@ -207,7 +207,7 @@ class HSL:
             colors.append(self.fudges[param](self,fudge_amount*(i+1)))
         return colors
     # Get closest named color
-    def get_name(self):
+    def closest_named_color(self):
         match(self.h):
             case _ if self.h<30 or self.h>=330:
                 return 'red'
@@ -221,13 +221,13 @@ class HSL:
                 return 'blue'
             case _ if 270<=self.h<330:
                 return 'magenta'
-    def get_named_color_distance(self,name):
+    def named_color_distance(self,name):
         hue = self.h
         named_hue = named_colors[name]
         distance = min(abs(named_hue-hue),360-abs(named_hue-hue))
         return distance
-    def get_named_color(self,color):
-        start_color = self.get_name()
+    def rotate_to_named_color(self,color):
+        start_color = self.closest_named_color()
         color_list = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
         rotate_amt = ((color_list.index(color)-color_list.index(start_color))%6)*60
         return self.rotate(rotate_amt)

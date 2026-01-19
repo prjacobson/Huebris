@@ -9,8 +9,9 @@ class theme:
     def __init__(self,palette,terminal):
         self.palette = palette # Palette
         terminals = [term.switch_dark_light(palette.base_color, terminal),terminal]
-        self.dark_terminal = terminals[terminal.dark_mode]
-        self.terminal = terminals[not terminal.dark_mode]
+        dark_terminal_index = terminals[0].bg.l > terminals[1].bg.l
+        self.terminal = terminals[not dark_terminal_index]
+        self.dark_terminal = terminals[dark_terminal_index]
         self.base_color = self.palette.base_color
 
     # Preview contents
