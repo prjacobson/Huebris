@@ -17,7 +17,7 @@ class terminal_colors:
         self.fg = fg
         self.bg = bg
 
-    def preview(self):
+    def preview(self,verbose=True):
         def term_color_preview(color):
             r,g,b = color.to_RGB()
             return (f"\033[48;2;{r};{g};{b}m #{color.hexed()} \033[0m")
@@ -30,7 +30,10 @@ class terminal_colors:
         for i in range(len(self.bright_colors)):
             brights = brights+term_color_preview(self.bright_colors[i])
         brights = brights + "\n"
-        preview_text = "bg&fg:\n"+bg_fg+"Term. colors:\n"+normals+brights
+        if verbose:
+            preview_text = "bg&fg:\n"+bg_fg+"Term. colors:\n"+normals+brights
+        else:
+            preview_text = bg_fg+normals+brights
         print(preview_text)
 
 ### Foreground background function

@@ -56,6 +56,8 @@ class palette:
             if method == "symmetric": add_amount = int(add_amount/2)
             # add to palette
             self.expand(color=color_list[i],N=add_amount,method=method,param=param)
+    def all_colors(self):
+        return [self.base_color]+self.scheme_colors+self.extra_colors
     def preview(self,verbose=False):
         print("Base color:")
         self.base_color.preview(verbose=verbose)

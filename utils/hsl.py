@@ -65,13 +65,21 @@ class HSL:
         r,g,b = self.to_RGB()
         to_hex = lambda c : hex(floor(c/1))[2:].zfill(2)
         return to_hex(r)+to_hex(g)+to_hex(b)
-    def preview(self, verbose=False):
+    def preview(self, verbose=False,as_string=False):
         r,g,b = self.to_RGB()
         if verbose:
             r_h, r_s, r_l = round(self.h,3),round(self.s,3),round(self.l,3)
-            print(f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {r_h},{r_s},{r_l} \033[0m")
+            string=f"\033[48;2;{r};{g};{b}m RGB: {r},{g},{b} HSL: {r_h},{r_s},{r_l} \033[0m"
+            if as_string:
+                return string
+            else:
+                print(string)
         else:
-            print(f"\033[48;2;{r};{g};{b}m RGB: #{self.hexed()} \033[0m")
+            string=f"\033[48;2;{r};{g};{b}m RGB: #{self.hexed()} \033[0m"
+            if as_string:
+                return string
+            else:
+                print(string)
     # Colorscheme options
     def complementary(self) -> "HSL":
         return self.rotate(180)
