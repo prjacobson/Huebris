@@ -19,11 +19,18 @@ python huebris.py
 For simple generation of a random palette or theme, use
 
 ```
-python -m generators.palette -b [base color] -s [scheme] -w [weighted] -p [preferential] -n [num. of colors]
+python -m generators.palette 
+    -b [base color] 
+    -s [scheme] 
+    -w [weighted] 
+    -p [preferential] 
+    -n [num. of colors]
 ```
 or
 ```
-python -m generators.theme -b [base color] -s [scheme] -w [weighted] -p [preferential] -n [num. of colors] -t [terminal scheme]
+python -m generators.theme 
+    [all options from generators.palette]
+    -t [terminal scheme]
 ```
 
 ### Requirements
