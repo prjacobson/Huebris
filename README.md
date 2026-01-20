@@ -94,7 +94,7 @@ Here's some things you may notice in generating your palettes:
   * [x] Select new base color from given colors
   * [ ] Lock-able colors
   * [ ] Quicker random generation of full themes
-* [ ] Command to get random palette (using argparse for arguments)
+* [x] Command to get random palette (using argparse for arguments)
 
 ### Bugs
 * Dark mode/Light mode generation is shoddy
