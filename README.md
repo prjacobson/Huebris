@@ -16,7 +16,15 @@ The interactive generation script can be run with
 ```
 python huebris.py
 ```
-Further command line options are under development.
+For simple generation of a random palette or theme, use
+
+```
+python -m generators.palette -b [base color] -s [scheme] -w [weighted] -p [preferential] -n [num. of colors]
+```
+or
+```
+python -m generators.theme -b [base color] -s [scheme] -w [weighted] -p [preferential] -n [num. of colors] -t [terminal scheme]
+```
 
 ### Requirements
 
