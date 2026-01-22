@@ -77,7 +77,7 @@ palette_schemes = {
     "monochromatic" : lambda c,n: c.monochromatic(count=n-1)
 }
 # Generate a palette given a base color and scheme
-def generate_palette(base: HSL, scheme: str,N=4):
+def generate_palette(base, scheme: str,N=4):
     if N is None:
         N = 4
     scheme_colors = []
