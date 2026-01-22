@@ -36,6 +36,7 @@ python -m generators.theme
 ### Requirements
 
 * This script makes use of `random`, `math`, `json`, and `dataclasses`
+* Use of the python `match case` syntax requires `python>=3.10.*`
 * It will help to use a terminal with support for 256 colors
 
 ## How
