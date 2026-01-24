@@ -12,7 +12,13 @@ light_fudge = 0.3 # Max fudge of lightness
 min_light_fudge = 0.05
 # Careful to never make min_fudge > bound
 s_bound = 0.15 # how close to bounds to force a direction
-l_bound = 0.1 
+l_bound = 0.15 
+# How much to prefer saturation or lightness for imperfect palettes
+imperfect_saturation = 3
+imperfect_lightness = 2
+imperfect_hue_fudge = 5
+imperfect_sat_fudge = 0.1
+imperfect_light_fudge = 0.1
 
 # Weighted palette options
 saturation_mean = 0.75

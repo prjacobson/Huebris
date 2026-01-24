@@ -1,6 +1,7 @@
 # Defines the hsl() class and things you can do to/with a color
 
 from random import random
+from random import choice
 from random import gauss # For weighted color generation
 from random import expovariate # See above
 from math import floor
@@ -60,7 +61,7 @@ class HSL:
             case 5 | 6:
                 r,g,b = (C,0,X)
         return (round((r+m)*255), round((g+m)*255), round((b+m)*255)) 
-    # Preview color
+    ### Preview color
     def hexed(self):
         r,g,b = self.to_RGB()
         to_hex = lambda c : hex(floor(c/1))[2:].zfill(2)
@@ -80,34 +81,198 @@ class HSL:
                 return string
             else:
                 print(string)
-    # Colorscheme options
-    def complementary(self) -> "HSL":
-        return self.rotate(180)
-    def split_complementary(self):
+    ### Fudging methods
+    fudges = {
+            'h' : lambda c,x: c.rotate(x),
+            's' : lambda c,x: c.saturate(x),
+            'l' : lambda c,x: c.lighten(x)
+            }
+    hue_fudge = par.hue_fudge
+    min_hue_fudge = par.min_hue_fudge
+    sat_fudge = par.sat_fudge
+    min_sat_fudge = par.min_sat_fudge
+    light_fudge = par.light_fudge
+    min_light_fudge = par.min_light_fudge
+    s_bound = par.s_bound
+    l_bound = par.l_bound
+    # check fudge safety
+    def fudge_safety(self,amt=0,direct=1,param='h'):
+        if param == 'h':
+            pass
+        if param == 's':
+            fudged_s= self.s+(direct*amt)
+            if fudged_s < 0 or fudged_s > 1: 
+                amt = min(self.s,(1-self.s))
+        if param == 'l':
+            fudged_l= self.l+(direct*amt)
+            if fudged_l < 0 or fudged_l > 1: 
+                amt = min(self.l,(1-self.l))
+        return amt
+    def _direction(self,value,bound):
+        if value < bound: return 1
+        elif value > 1-bound: return -1
+        else: return -1 if random()<=0.5 else 1
+    # unidirectional fudge
+    def unidirectional_fudge(self,N=1,param='h'):
+        if N==0:
+            return []
+        if param == 'h':
+            direct = [-1,1][random()<=0.5]
+            fudge_amount = self.min_hue_fudge+(random()*(self.hue_fudge-self.min_hue_fudge))
+        # if close to bounds of S or L, don't fudge towards center
+        # also don't fudge O.O.B.
+        if param == 's':
+            direct=self._direction(self.s,self.s_bound)
+            fudge_amount = self.fudge_safety(amt=self.sat_fudge,direct=direct, param='s')
+            fudge_amount = self.min_sat_fudge+(random()*(fudge_amount-self.min_sat_fudge))
+        if param == 'l':
+            direct=self._direction(self.l,self.l_bound)
+            fudge_amount = self.fudge_safety(amt=self.light_fudge,direct=direct, param='l')
+            fudge_amount = self.min_light_fudge+(random()*(fudge_amount-self.min_light_fudge))
+        # Get fudged colors
+        fudge_amount = fudge_amount/N
+        colors = []
+        for i in range(N):
+            colors.append(self.fudges[param](self,fudge_amount*direct*(i+1)))
+        return colors
+    # symmetric fudge
+    # If called close to an edge, instead fudge unidirectionally
+    def sym_fudge(self,N=1,param='h'):
+        if N==0:
+            return []
+        if param == 'h':
+            fudge_amount = random()*self.hue_fudge
+            fudge_amount = self.min_hue_fudge+(random()*(fudge_amount-self.min_hue_fudge))
+        # don't fudge O.O.B.
+        if param == 's':
+            if self.s < self.s_bound or self.s > 1-self.s_bound:
+                return self.unidirectional_fudge(2*N,param)
+            if (self.s-self.sat_fudge)<0 or (self.s+self.sat_fudge)>1:
+                fudge_amount = min((1-self.s),self.s)
+            else: fudge_amount = self.sat_fudge
+            fudge_amount = random()*fudge_amount
+            fudge_amount = self.min_sat_fudge+(random()*(fudge_amount-self.min_sat_fudge))
+        if param == 'l':
+            if self.l < self.l_bound or self.l > 1-self.l_bound:
+                return self.unidirectional_fudge(2*N,param)
+            if (self.l-self.light_fudge)<0 or (self.l+self.light_fudge)>1:
+                fudge_amount = min((1-self.l),self.l)
+            else: fudge_amount = self.light_fudge
+            fudge_amount = self.min_light_fudge+(random()*(fudge_amount-self.min_light_fudge))
+        # Get fudged c(olors
+        fudge_amount = fudge_amount/N
+        colors = []
+        for i in range(N):
+            colors.append(self.fudges[param](self,fudge_amount*-(i+1)))
+            colors.append(self.fudges[param](self,fudge_amount*(i+1)))
+        return colors
+    ### Colorscheme options
+    imperfection_list = ['s']*par.imperfect_saturation+['l']*par.imperfect_lightness
+    imperfection_fudge = {
+        's' : random()*par.imperfect_sat_fudge, 
+        'l' : random()*par.imperfect_light_fudge} 
+    def hue_imperfection(self):
+        return -par.imperfect_hue_fudge + random()*par.imperfect_hue_fudge*2
+    # Basic direction choose, go towards center
+    def imperfection_direction(self,param):
+        if param == 's':
+            if self.s < 0.5: direct = 1
+            else: direct = -1
+        if param == 'l':
+            if self.l < 0.5: direct = 1
+            else: direct = -1
+        return direct
+    # Colorschemes
+    def complementary(self,perfect=True) -> "HSL":
+        comp = self.rotate(180)
+        if perfect:
+            return comp
+        else:
+            imperfection = choice(self.imperfection_list) # Pick an imperfection
+            fudge_amount = self.imperfection_fudge[imperfection] # Get amount
+            direct = self.imperfection_direction(imperfection) # Pick direction
+            comp = self.fudges[imperfection](comp,fudge_amount*direct) # Apply fudge
+            comp = comp.rotate(self.hue_imperfection())
+            return comp
+    def split_complementary(self,perfect=True):
         color_1 = self.rotate(180-30)
         color_2 = self.rotate(180+30)
-        return color_1,color_2
-    def analogous(self):
+        if perfect:
+            return color_1,color_2
+        else:
+            imperfection = choice(self.imperfection_list) # Pick an imperfection
+            fudge_amount = self.imperfection_fudge[imperfection] # Get amount
+            direct = self.imperfection_direction(imperfection) # Pick direction
+            color_1 = self.fudges[imperfection](color_1,fudge_amount*direct) # Apply fudge
+            color_2 = self.fudges[imperfection](color_2,fudge_amount*2*direct)
+            color_1 = color_1.rotate(self.hue_imperfection())
+            color_2 = color_2.rotate(self.hue_imperfection())
+            return color_1,color_2
+    def analogous(self,perfect=True):
         color_1 = self.rotate(-30)
         color_2 = self.rotate(30)
-        return color_1, color_2
-    def triadic(self):
+        if perfect:
+            return color_1, color_2
+        else:
+            imperfection = choice(self.imperfection_list) # Pick an imperfection
+            fudge_amount = self.imperfection_fudge[imperfection] # Get amount
+            direct = self.imperfection_direction(imperfection) # Pick direction
+            color_1 = self.fudges[imperfection](color_1,fudge_amount*direct) # Apply fudge
+            color_2 = self.fudges[imperfection](color_2,fudge_amount*2*direct)
+            color_1 = color_1.rotate(self.hue_imperfection())
+            color_2 = color_2.rotate(self.hue_imperfection())
+            return color_1,color_2
+    def triadic(self,perfect=True):
         color_1 = self.rotate(-120)
         color_2 = self.rotate(120)
-        return color_1, color_2
-    def square(self):
+        if perfect:
+            return color_1, color_2
+        else:
+            imperfection = choice(self.imperfection_list) # Pick an imperfection
+            fudge_amount = self.imperfection_fudge[imperfection] # Get amount
+            direct = self.imperfection_direction(imperfection) # Pick direction
+            color_1 = self.fudges[imperfection](color_1,fudge_amount*direct) # Apply fudge
+            color_2 = self.fudges[imperfection](color_2,fudge_amount*2*direct)
+            color_1 = color_1.rotate(self.hue_imperfection())
+            color_2 = color_2.rotate(self.hue_imperfection())
+            return color_1,color_2
+    def square(self,perfect=True):
         color_1 = self.rotate(-90)
         color_2 = self.rotate(90)
         color_3 = self.rotate(180)
-        return color_1, color_2, color_3
-    def tetradic(self):
+        if perfect:
+            return color_1, color_2, color_3
+        else:
+            imperfection = choice(self.imperfection_list) # Pick an imperfection
+            fudge_amount = self.imperfection_fudge[imperfection] # Get amount
+            direct = self.imperfection_direction(imperfection) # Pick direction
+            color_1 = self.fudges[imperfection](color_1,fudge_amount*direct) # Apply fudge
+            color_2 = self.fudges[imperfection](color_2,fudge_amount*2*direct)
+            color_3 = self.fudges[imperfection](color_3,fudge_amount*3*direct)
+            color_1 = color_1.rotate(self.hue_imperfection())
+            color_2 = color_2.rotate(self.hue_imperfection())
+            color_3 = color_3.rotate(self.hue_imperfection())
+            return color_1, color_2, color_3
+    def tetradic(self,perfect=True):
         # Could go both directions
         pm = [-1,1][random()<=0.5]
         color_1 = self.rotate(pm*60)
         color_2 = self.rotate(180)
         color_3 = self.rotate(180+pm*60)
-        return color_1, color_2, color_3
-    def monochromatic(self,count=4):
+        if perfect:
+            return color_1, color_2, color_3
+        else:
+            imperfection = choice(self.imperfection_list) # Pick an imperfection
+            fudge_amount = self.imperfection_fudge[imperfection] # Get amount
+            direct = self.imperfection_direction(imperfection) # Pick direction
+            color_1 = self.fudges[imperfection](color_1,fudge_amount*direct) # Apply fudge
+            color_2 = self.fudges[imperfection](color_2,fudge_amount*2*direct)
+            color_3 = self.fudges[imperfection](color_3,fudge_amount*3*direct)
+            color_1 = color_1.rotate(self.hue_imperfection())
+            color_2 = color_2.rotate(self.hue_imperfection())
+            color_3 = color_3.rotate(self.hue_imperfection())
+            return color_1, color_2, color_3
+    def monochromatic(self,count=4,perfect=True):
         # count is how many additional colors
         # count=4 => base + 4 k
         colors = []
@@ -138,83 +303,8 @@ class HSL:
             for i in range(halved+extra[1]):
                 colors.append(self.lighten((i+1)*lightness_step))
             return tuple(colors)
-    # expansion methods
-    fudges = {
-            'h' : lambda c,x: c.rotate(x),
-            's' : lambda c,x: c.saturate(x),
-            'l' : lambda c,x: c.lighten(x)
-            }
-    hue_fudge = par.hue_fudge
-    min_hue_fudge = par.min_hue_fudge
-    sat_fudge = par.sat_fudge
-    min_sat_fudge = par.min_sat_fudge
-    light_fudge = par.light_fudge
-    min_light_fudge = par.min_light_fudge
-    s_bound = par.s_bound
-    l_bound = par.l_bound
-    # unidirectional fudge
-    def N_fudge(self,N=1,param='h'):
-        if N==0:
-            return []
-        if param == 'h':
-            dir = [-1,1][random()<=0.5]
-            fudge_amount = self.min_hue_fudge+(random()*(self.hue_fudge-self.min_hue_fudge))
-        # if close to bounds of S or L, don't fudge towards center
-        # also don't fudge O.O.B.
-        if param == 's':
-            if self.s < self.s_bound: dir = 1
-            elif self.s > 1-self.s_bound: dir = -1
-            else: dir = [-1,1][random()<=0.5]
-            if (self.s+dir*self.sat_fudge)<0 or (self.s+dir*self.sat_fudge)>1:
-                fudge_amount = min((1-self.s),self.s)
-            else: fudge_amount = self.sat_fudge
-            fudge_amount = self.min_sat_fudge+(random()*(fudge_amount-self.min_sat_fudge))
-        if param == 'l':
-            if self.l < self.l_bound: dir = 1
-            elif self.l > 1-self.l_bound: dir = -1
-            else: dir = [-1,1][random()<=0.5]
-            if (self.l+dir*self.light_fudge)<0 or (self.l+dir*self.light_fudge)>1:
-                fudge_amount = min((1-self.l),self.l)
-            else: fudge_amount = self.light_fudge
-            fudge_amount = self.min_light_fudge+(random()*(fudge_amount-self.min_light_fudge))
-        # Get fudged colors
-        fudge_amount = fudge_amount/N
-        colors = []
-        for i in range(N):
-            colors.append(self.fudges[param](self,fudge_amount*dir*(i+1)))
-        return colors
-    # symmetric fudge
-    # If called close to an edge, instead fudge unidirectionally
-    def sym_fudge(self,N=1,param='h'):
-        if N==0:
-            return []
-        if param == 'h':
-            fudge_amount = random()*self.hue_fudge
-            fudge_amount = self.min_hue_fudge+(random()*(fudge_amount-self.min_hue_fudge))
-        # don't fudge O.O.B.
-        if param == 's':
-            if self.s < self.s_bound or self.s > 1-self.s_bound:
-                return self.N_fudge(2*N,param)
-            if (self.s-self.sat_fudge)<0 or (self.s+self.sat_fudge)>1:
-                fudge_amount = min((1-self.s),self.s)
-            else: fudge_amount = self.sat_fudge
-            fudge_amount = random()*fudge_amount
-            fudge_amount = self.min_sat_fudge+(random()*(fudge_amount-self.min_sat_fudge))
-        if param == 'l':
-            if self.l < self.l_bound or self.l > 1-self.l_bound:
-                return self.N_fudge(2*N,param)
-            if (self.l-self.light_fudge)<0 or (self.l+self.light_fudge)>1:
-                fudge_amount = min((1-self.l),self.l)
-            else: fudge_amount = self.light_fudge
-            fudge_amount = self.min_light_fudge+(random()*(fudge_amount-self.min_light_fudge))
-        # Get fudged colors
-        fudge_amount = fudge_amount/N
-        colors = []
-        for i in range(N):
-            colors.append(self.fudges[param](self,fudge_amount*-(i+1)))
-            colors.append(self.fudges[param](self,fudge_amount*(i+1)))
-        return colors
-    # Get closest named color
+     ### Named colors
+     # Get closest named color
     def closest_named_color(self):
         match(self.h):
             case _ if self.h<30 or self.h>=330:

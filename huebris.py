@@ -26,6 +26,7 @@ while True:
         preferential = True
         scheme = None
         N = 5
+        perfect = True
         print("Using default settings")
         break 
     else:
@@ -129,12 +130,15 @@ if interactive == 'i' or interactive == 'I':
         perf_choice = input("Enter your choice (1-2): ")
         if perf_choice == '1':
             print("Using perfect palette generation")
+            perfect = True
             break
         if perf_choice == '2':
             print("Using imperfect palette generation")
+            perfect = False
             break
         if perf_choice == '':
             print("Using default (imperfect palette generation)")
+            perfect = False
             break
         else:
             nr()
@@ -154,7 +158,7 @@ if interactive == 'i' or interactive == 'I':
 
 # Palette generation
 print("\nGenerating palette:")
-palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential)
+palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential,perfect=perfect)
 while True:
     palette_colors = palette.all_colors()
     for i in palette_colors: i.preview()
@@ -167,7 +171,7 @@ while True:
         break
     if happy.lower() == 'n':
         print("\nRegenerating palette:")
-        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential)
+        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential,perfect=perfect)
     if happy.lower() == 'choose' or happy.lower() == 'c':
         print("\nWhich color should be the new base?")
         for i in range(len(palette_colors)):
@@ -183,7 +187,7 @@ while True:
                     color_choice = int(color_choice)
                     print(f"\nNew palette using #{color_choice}:")
                     base = palette_colors[color_choice-1]
-                    palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential)
+                    palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential,perfect=perfect)
                     break
                 else:
                     print("Choice is outside of range")
@@ -257,7 +261,7 @@ while True:
                         color_choice = int(color_choice)
                         print(f"\nNew theme using #{color_choice}:")
                         base = palette_colors[color_choice-1]
-                        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential)
+                        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential,perfect=perfect)
                         terminal = term_generate[term_choice](palette.base_color)
                         theme = thm.theme(palette,terminal)
                         break
@@ -278,7 +282,7 @@ while True:
                         color_choice = int(color_choice)
                         print(f"\nNew theme using #{color_choice}:")
                         base = all_term_colors[color_choice-1]
-                        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential)
+                        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential,perfect=perfect)
                         terminal = term_generate[term_choice](palette.base_color)
                         theme = thm.theme(palette,terminal)
                         break
@@ -299,7 +303,7 @@ while True:
                         color_choice = int(color_choice)
                         print(f"\nNew theme using #{color_choice}:")
                         base = all_term_colors[color_choice-1]
-                        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential)
+                        palette = pal.N_palette(N=N,base=base,scheme=scheme,weighted=weighted,preferential=preferential,perfect=perfect)
                         terminal = term_generate[term_choice](palette.base_color)
                         theme = thm.theme(palette,terminal)
                         break
@@ -307,7 +311,7 @@ while True:
                         print("Choice is outside of range")
     if happy.lower() == 'n':
         print("\nRegenerating theme:")
-        palette = pal.N_palette(N=N,base=palette.base_color,scheme=scheme,weighted=weighted,preferential=preferential)
+        palette = pal.N_palette(N=N,base=palette.base_color,scheme=scheme,weighted=weighted,preferential=preferential,perfect=perfect)
         terminal = term_generate[term_choice](palette.base_color)
         theme = thm.theme(palette,terminal)
     if happy.lower() != 'y' and happy.lower() != 'n' and happy.lower() != 'choose' and happy != '':

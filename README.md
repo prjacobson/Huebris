@@ -67,6 +67,8 @@ There are 2 methods of generating terminal color palettes. Both methods start wi
 ## Quirks
 
 Here's some things you may notice in generating your palettes:
+* General quirks
+  * The generation is heavily reliant on a 'base color' instead of a holistic look at the palette
 * Color quirks
   * N/A currently
 * Palette quirks
@@ -91,8 +93,10 @@ Here's some things you may notice in generating your palettes:
 * [x] Foreground background generation
   * [x] ...with contrast checking
 * [x] Output palette to `.json`(?) file
+* [x] First fudge is from base color
+* [x] Less jank/more efficient fudging
 * [ ] More varied palette generation
-  * [ ] Multistep fudging (H,S, *AND* L)
+  * [x] ~~Multistep fudging (H,S, *AND* L)~~ Done via imperfect palettes
   * [ ] Non 'standard' schemes (see coolors)
 * [ ] Choice of dark/light theme
   * [x] Dark/light terminal options

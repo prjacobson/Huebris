@@ -19,10 +19,10 @@ class palette:
 
     # Expand palette
     expansion_methods = {
-            "unidirectional" : lambda c, n, p: c.N_fudge(N=n, param=p),
+            "unidirectional" : lambda c, n, p: c.unidirectional_fudge(N=n, param=p),
             "symmetric" : lambda c, n, p: c.sym_fudge(N=n, param=p)
     }
-    def expand(self, color=None,N=1,method="unidirectional",param="h"):
+    def expand(self,color=None,N=1,method="unidirectional",param="h"):
         if color is None:
             color = choice([self.base_color]+self.scheme_colors)
         # Feels sketchy having no return but okay 
@@ -39,11 +39,12 @@ class palette:
             return 
         # If only need one, have to expand unidirectionally 
         if to_add == 1:
-            param = choice(params)
-            self.expand(color=None,N=1, method="unidirectional", param=param)
+            param = choice(params) # Pick base color first
+            self.expand(color=self.base_color,N=1, method="unidirectional", param=param)
             return 
         for i in range(len(color_list)):
             if i+1 == len(color_list): add_amount = to_add # last color gets all colors
+            elif i == 0: add_amount = choice(list(range(1,to_add+1))) # First color always gets a use
             else: add_amount = choice(list(range(to_add+1)))
             to_add = to_add-add_amount
             param = choice(params)
@@ -68,21 +69,21 @@ class palette:
 
 # All palette schemes    
 palette_schemes = {
-    "complementary" : lambda c,n: c.complementary(),
-    "split_complementary" : lambda c,n: c.split_complementary(),
-    "analogous" : lambda c,n: c.analogous(),
-    "triadic" : lambda c,n: c.triadic(),
-    "square" : lambda c,n: c.square(),
-    "tetradic" : lambda c,n: c.tetradic(),
-    "monochromatic" : lambda c,n: c.monochromatic(count=n-1)
+    "complementary" : lambda c,p,n: c.complementary(perfect=p),
+    "split_complementary" : lambda c,p,n: c.split_complementary(perfect=p),
+    "analogous" : lambda c,p,n: c.analogous(perfect=p),
+    "triadic" : lambda c,p,n: c.triadic(perfect=p),
+    "square" : lambda c,p,n: c.square(perfect=p),
+    "tetradic" : lambda c,p,n: c.tetradic(perfect=p),
+    "monochromatic" : lambda c,p,n: c.monochromatic(count=n-1,perfect=p)
 }
 # Generate a palette given a base color and scheme
-def generate_palette(base, scheme: str,N=4):
+def generate_palette(base, scheme: str,N=4,perfect=True):
     if N is None:
         N = 4
     scheme_colors = []
     try: 
-        colors = palette_schemes[scheme](base,N)
+        colors = palette_schemes[scheme](base,perfect,N)
         if type(colors) == hsl.HSL:
             scheme_colors.append(colors)
         else:
@@ -92,7 +93,7 @@ def generate_palette(base, scheme: str,N=4):
          raise ValueError(f"Unknown palette scheme: {scheme}")
 
 # Get random palette
-def random_palette(base=None,scheme=None,weighted=False,preferential=False,N=None):
+def random_palette(base=None,scheme=None,weighted=False,preferential=False,N=None,perfect=True):
     # Preferential list
     preferential_schemes = ["complementary"]*par.complementary_amt+["split_complementary"]*par.split_complementary_amt+["analogous"]*par.analogous_amt+["triadic"]*par.triadic_amt+["square"]*par.square_amt+["tetradic"]*par.tetradic_amt+["monochromatic"]*par.monochromatic_amt
     if base is None:
@@ -132,12 +133,12 @@ def random_palette(base=None,scheme=None,weighted=False,preferential=False,N=Non
                 scheme = choice(preferential_schemes)
         else:
             scheme = choice(scheme_choices)
-    palette = generate_palette(base,scheme,N)
+    palette = generate_palette(base,scheme,N,perfect=perfect)
     return palette
 
 
 # Function to get a random palette of size N
-def N_palette(N=5,base=None,scheme=None,weighted=False,preferential=False):
-    pal = random_palette(base=base,scheme=scheme,weighted=weighted,preferential=preferential,N=N)
+def N_palette(N=5,base=None,scheme=None,weighted=False,preferential=False,perfect=True):
+    pal = random_palette(base=base,scheme=scheme,weighted=weighted,preferential=preferential,N=N,perfect=perfect)
     pal.expand_to_N(N)
     return pal

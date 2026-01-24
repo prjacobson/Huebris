@@ -2,7 +2,7 @@ from utils import hsl
 from utils import palettes
 import argparse
 
-def main(base,scheme,weighted,preferential,N):
+def main(base,scheme,weighted,preferential,N,perfect):
     if base is not None:
         if len(base) == 7: base = base[1:] # Remove # if included
         if len(base) == 6:
@@ -16,7 +16,7 @@ def main(base,scheme,weighted,preferential,N):
             except ValueError:
                 print("Invalid hex color code, using random base")
                 base = None
-    return palettes.N_palette(base=base,scheme=scheme,weighted=weighted,preferential=preferential,N=N)
+    return palettes.N_palette(base=base,scheme=scheme,weighted=weighted,preferential=preferential,N=N,perfect=perfect)
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -25,9 +25,10 @@ def parse_arguments():
     parser.add_argument("-w", "--weighted", type=bool, default=True, help="Colors weighted towards normal")
     parser.add_argument("-p", "--preferential", type=bool, default=True, help="Use a more 'conventional' scheme")
     parser.add_argument("-n", "--num", type=int, default=5, help="How many colors in the palette")
+    parser.add_argument("-i", "--imperfect", type=bool, default=True, help="Shift palettes slightly off a perfect construction")
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_arguments()
-    pal = main(base=args.base,scheme=args.scheme,weighted=args.weighted,preferential=args.preferential,N=args.num)
+    pal = main(base=args.base,scheme=args.scheme,weighted=args.weighted,preferential=args.preferential,N=args.num,perfect=(not args.imperfect))
     pal.preview()
